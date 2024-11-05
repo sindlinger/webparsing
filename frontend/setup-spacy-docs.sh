@@ -1,3 +1,219 @@
+#!/bin/bash
+
+# Cores para output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Criando estrutura de documentação do SpaCy...${NC}"
+
+# Criar diretório docs dentro de app se não existir
+mkdir -p app/docs/spacy
+# Cores para output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Instalando e configurando componentes shadcn/ui...${NC}"
+
+# Instalar dependências do shadcn/ui
+echo -e "${GREEN}Instalando dependências...${NC}"
+npx shadcn-ui@latest init
+
+# Instalar componentes necessários
+echo -e "${GREEN}Instalando componentes...${NC}"
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add alert
+npx shadcn-ui@latest add tabs
+
+echo -e "${GREEN}Configuração concluída!${NC}"
+echo "Componentes instalados:"
+echo "- Button"
+echo "- Card"
+echo "- Alert"
+echo "- Tabs"
+# Criar página da documentação
+echo -e "${GREEN}Criando página de redirecionamento da documentação...${NC}"
+cat > app/docs/spacy/page.tsx << 'EOF'
+"use client"
+ 
+import { useEffect } from "react"
+ 
+export default function SpacyDocsPage() {
+  useEffect(() => {
+    window.location.href = '/spacy-docs.html'
+  }, [])
+ 
+  return (
+    <div className="flex justify-center items-center h-screen">
+      Carregando documentação...
+    </div>
+  )
+}
+EOF
+
+# Criar arquivo de documentação HTML
+echo -e "${GREEN}Criando arquivo de documentação HTML...${NC}"
+cat > public/spacy-docs.html << 'EOF'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>SpaCy API Documentation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .endpoint {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .example {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .entity-type {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin: 2px;
+      font-size: 0.9em;
+    }
+    .entity-person { background-color: #ffd700; }
+    .entity-org { background-color: #98fb98; }
+    .entity-gpe { background-color: #87ceeb; }
+  </style>
+</head>
+<body>
+  <h1>Documentação SpaCy API</h1>
+  
+  <div class="endpoint">
+    <h2>Endpoint: /ent (Extração de Entidades)</h2>
+    <p>Extrai entidades nomeadas do texto como pessoas, organizações, locais, etc.</p>
+    
+    <h3>Requisição:</h3>
+    <pre class="example">
+curl -X POST http://localhost:8080/ent \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Microsoft was founded by Bill Gates in Seattle",
+    "model": "en"
+  }'</pre>
+    
+    <h3>Resposta:</h3>
+    <pre class="example">[
+  {
+    "text": "Microsoft",
+    "type": "ORG",
+    "start": 0,
+    "end": 9
+  },
+  {
+    "text": "Bill Gates",
+    "type": "PERSON",
+    "start": 25,
+    "end": 35
+  },
+  {
+    "text": "Seattle",
+    "type": "GPE",
+    "start": 39,
+    "end": 46
+  }
+]</pre>
+
+    <h3>Tipos de Entidades:</h3>
+    <div>
+      <span class="entity-type entity-person">PERSON</span> - Pessoas
+      <span class="entity-type entity-org">ORG</span> - Organizações
+      <span class="entity-type entity-gpe">GPE</span> - Locais Geopolíticos
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <h2>Endpoint: /dep (Análise de Dependências)</h2>
+    <p>Analisa a estrutura sintática e dependências entre palavras no texto.</p>
+    
+    <h3>Requisição:</h3>
+    <pre class="example">
+curl -X POST http://localhost:8080/dep \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "This is a test",
+    "model": "en"
+  }'</pre>
+    
+    <h3>Resposta:</h3>
+    <pre class="example">{
+  "words": [
+    {
+      "text": "This",
+      "tag": "DT"
+    },
+    {
+      "text": "is",
+      "tag": "VBZ"
+    },
+    {
+      "text": "a test",
+      "tag": "NN"
+    }
+  ],
+  "arcs": [
+    {
+      "start": 0,
+      "end": 1,
+      "label": "nsubj",
+      "dir": "left",
+      "text": "This"
+    },
+    {
+      "start": 1,
+      "end": 2,
+      "label": "attr",
+      "dir": "right",
+      "text": "a test"
+    }
+  ]
+}</pre>
+  </div>
+
+  <div class="endpoint">
+    <h2>Endpoint: /models</h2>
+    <p>Lista os modelos disponíveis.</p>
+    
+    <h3>Requisição:</h3>
+    <pre class="example">curl http://localhost:8080/models</pre>
+    
+    <h3>Resposta:</h3>
+    <pre class="example">["en"]</pre>
+  </div>
+
+  <div class="endpoint">
+    <h2>Notas Importantes</h2>
+    <ul>
+      <li>O modelo disponível é apenas em inglês ("en")</li>
+      <li>Todos os endpoints esperam o parâmetro "model":"en" no JSON</li>
+      <li>O tamanho máximo do texto pode ser limitado pelo servidor</li>
+      <li>As respostas incluem posições no texto (start/end) para mapeamento preciso</li>
+    </ul>
+  </div>
+</body>
+</html>
+EOF
+
+# Atualizar o page.tsx principal
+echo -e "${GREEN}Atualizando página principal...${NC}"
+cat > app/page.tsx << 'EOF'
 "use client"
 
 import React, { useState } from "react"
@@ -273,3 +489,20 @@ const DocumentProcessor = () => {
 }
 
 export default DocumentProcessor
+EOF
+
+echo -e "${GREEN}Estrutura criada com sucesso!${NC}"
+echo -e "${BLUE}Estrutura de arquivos:${NC}"
+echo "frontend/"
+echo "├── app/"
+echo "│   ├── page.tsx (atualizado)"
+echo "│   └── docs/"
+echo "│       └── spacy/"
+echo "│           └── page.tsx"
+echo "└── public/"
+echo "    └── spacy-docs.html"
+echo ""
+echo -e "${BLUE}Para usar:${NC}"
+echo "1. Salve o script como setup-spacy-docs.sh"
+echo "2. Execute: chmod +x setup-spacy-docs.sh"
+echo "3. Execute: ./setup-spacy-docs.sh"
