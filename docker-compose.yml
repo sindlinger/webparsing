@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  tika:
+    image: apache/tika:latest-full
+    container_name: tika
+    ports:
+      - "9998:9998"
+    networks:
+      - doc_processing_network
+    restart: unless-stopped
+
+  spacy:
+    image: jgontrum/spacyapi:latest
+    container_name: spacy
+    ports:
+      - "8080:80"
+    networks:
+      - doc_processing_network
+    restart: unless-stopped
+
+  ocrmypdf:
+    image: jbarlow83/ocrmypdf
+    container_name: ocrmypdf
+    ports:
+      - "5000:5000"
+    networks:
+      - doc_processing_network
+    restart: unless-stopped
+
+networks:
+  doc_processing_network:
+    name: doc_processing_network
+    driver: bridge
