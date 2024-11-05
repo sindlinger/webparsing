@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,  // Ativa o modo estrito para debugging de erros comuns
+  // Remova 'swcMinify' se não suportada ou necessária 
 };
 
 export default nextConfig;
