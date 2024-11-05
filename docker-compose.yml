@@ -19,16 +19,22 @@ services:
       - doc_processing_network
     restart: unless-stopped
 
-  ocrmypdf:
-    image: jbarlow83/ocrmypdf
-    container_name: ocrmypdf
+  backend:
+    build:
+      context: .
     ports:
-      - "5000:5000"
+      - "8000:8000"
+    environment:
+      PORT: 8000
+    volumes:
+      - ./document_processor/uploads:/app/document_processor/uploads
+      - ./document_processor/results:/app/document_processor/results
+    depends_on:
+      - tika
+      - spacy
     networks:
       - doc_processing_network
-    restart: unless-stopped
 
 networks:
   doc_processing_network:
-    name: doc_processing_network
     driver: bridge
