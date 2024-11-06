@@ -1,0 +1,393 @@
+
+--- Página 1 ---
+FACULDADE DE MEDICINA NOVA ESPERANÇA
+Reconhecida pelo MEC: Portaria nº 1.084, de 28 de dezembro 2007, publicada no
+FAMENE DOU de 31 de dezembro de 2007, página 36, seção 1.
+
+ 
+
+SENSIBILIDADE, ESPECIFICIDADE
+E VALORES PREDITIVOS
+
+Prof. Alysson Souza
+
+
+--- Página 2 ---
+Quando avaliamos um teste diagnóstico 4 situações são
+possíveis:
+
+1. Resultado Verdadeiro Positivo (VP) => o teste é
+positivo e o indivíduo tem a doença
+
+2. Resultado Falso positivo (FP) = o teste é positivo
+
+e o indivíduo não tem a doença.
+
+3. Resultado Falso Negativo (FN) = o teste é negativo
+e o indivíduo tem a doença.
+
+4. Resultado Verdadeiro Negativo(VN) = o teste é
+negativo e o indivíduo não apresenta a doença.
+
+ 
+
+
+--- Página 3 ---
+Resultados do desempenho de um novo teste
+diagnóstico para câncer de mama em 200 mulheres com
+nódulo mamário único.
+
+Biopsia
+
+ER
+
+A B
+Positivo 65 TO
+verdadeiros falsos
+positivos positivos
+c D
+Negativo 35 30
+falsos verdadeiros
+negativos negativos
+
+ 
+
+
+--- Página 4 ---
+A validade de um teste diagnóstico pode ser avaliada
+através do cálculo da Sensibilidade e Especificidade,
+para o diagnóstico correto de um evento clínico e
+
+também sua capacidade preditiva.
+
+ 
+
+
+--- Página 5 ---
+Passos
+
+1. Seleção de um teste de referência (padrão ouro) que
+separe corretamente indivíduos doentes de sadios. Este
+teste deverá fornecer sempre a resposta correta em
+indivíduos doentes e sadios.
+
+2. Escolha de um grupo de pacientes que segundo o
+padrão separe os indivíduos livres da doença e com a
+doença.
+
+3. Cálculo dos resultados concordantes e discrepantes.
+
+ 
+
+
+--- Página 6 ---
+Sensibilidade e Especificidade
+
+ 
+
+
+--- Página 7 ---
+Sensibilidade
+
+Proporção de indivíduos com a doença que são
+identificados corretamente pelo teste. Indica o quão
+bom é um teste em identificar a doença em questão.
+
+Especificidade
+
+Proporção de indivíduos sem a doença que são
+identificados corretamente pelo teste. Indica o quão
+bom é um teste em identificar indivíduo sem doença em
+
+questão.
+
+ 
+
+
+--- Página 8 ---
+Valor preditivo positivo (VPP)
+
+É usado para ajudar a predizer qual a probabilidade de se
+ter a doença se o resultado do teste for positivo. É
+também conhecido como probabilidade pós-teste e
+
+probabilidade posterior de se ter a doença.
+
+Valor preditivo negativo (VPN)
+
+É usado para ajudar a prever qual a possibilidade de
+não se ter a doença se o resultado do teste for negativo.
+É também conhecido como probabilidade pós-teste e
+probabilidade posterior de não apresentar a doença.
+
+ 
+
+
+--- Página 9 ---
+ 
+
+Tabela 7.1.
+
+Teste padrão
+
++
+
+ 
+
+Teste em + a
+estudo E E d
+
+ 
+
+ 
+
+ 
+
+Total ja +c |b + d| at+b+c+d=N
+
+SENSIBILIDADE = a/a+c
+
+ESPECIFICIDADE = d/b+d
+
+VALOR PREDITIVO POSITIVO = a/a+b
+
+VALOR PREDITIVO NEGATIVO = d/c+d
+
+ 
+
+
+--- Página 10 ---
+Resultados do desempenho de um novo teste
+diagnóstico para câncer de mama em 200 mulheres com
+nódulo mamário único.
+
+Biopsia
+
+RE
+porno [as |
+
+Negativo
+
+ 
+
+
+--- Página 11 ---
+Exemplificando:
+
+Sensibilidade= 65/65 + 35 = 0,68
+E Especificidade= 30/70+30=0,3
+E Valor Preditivo Positivo= 65/135 = 0,48
+
+Valor Preditivo Negativo= 30 / 65 = 0,46
+
+ 
+
+
+--- Página 12 ---
+EXEMPLIFICANDO
+
+Helicobacter
+pylori
+
+Teste
+Respirat.
+
+E os respectivos intervalos de confiança de 95%:
+
+S = (0,95 — 0,99) E = (0,77 — 0,99)
+
+ 
+
+
+--- Página 13 ---
+VALORES PREDITIVOS EM RELAÇÃO A
+PREVALENCIA
+
+vpp = 0000 SxP
+(SxP)+(I-E)x(1-P)
+
+VPN = Ex(1-P)
+U-SxP+Ex(-P)
+
+onde P é a prevalência da doença
+
+ 
+
+
+--- Página 14 ---
+VALORES PREDITIVOS EM RELAÇÃO A
+PREVALENCIA
+
+ 
+
+|
+=— S-95%; E=95% |
+=— S-70%; E=99%
+
+S=99%; E=70%
+
+0% + a E : —— 4 :
+0% 5% 10% 15% 20% 25% 30% 35% 40% 45% 50%
+
+Prevalência
+
+ 
+
+ 
+
+Valor preditivo positivo em função da prevalência.
+
+ 
+
+
+--- Página 15 ---
+VALORES PREDITIVOS EM RELAÇÃO A
+PREVALENCIA
+
+ 
+
+100%
+80%
+
+680% ss :
+— 5=09%; E=99%
+
+40% m— S=95%; E=95%
+S=70%; E=99%
+
+20% meu 5=99%; E=70%
+
+ 
+
+0%
+
+0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
+
+Prevalência
+
+ 
+
+Fig. 18.2 —Valor preditivo negativo em função da prevalência.
+
+ 
+
+
+--- Página 16 ---
+PONTOS DE CORTE
+
+ 
+
+Normal Diabéticos
+Limite alto
+Aka especificidade:
+
+Normal Diabéticos
+
+Limite baixo
+Aka sensibilidade
+
+ELLA AA MA
+
+0:
+
+Nº indivíduos
+Nº indivíduos
+
+Falso positivo
+
+ 
+
+1
++
+q
++
+=|
+q
+4
+=
+a
+«
+
+ 
+
+Glicemia Glicemia
+
+Lo E na
+
+Fig. 18.5 — Efeito da definição de diferentes níveis de glicemia no resultado falso positivo e falso negativo
+
+ 
+
+ 
+
+ 
+
+
+--- Página 17 ---
+Curva RCO — Curva de receiver operator
+characteristic
+
+ESPECIFICIDADE (*%h
+
+120 .“ Ponto de corte
+(mg/100mL)
+
+a
+o
+«a.
+
+da
+S
+BEsês é E
+
+g
+á
+ê
+H
+E
+a
+z
+má
+mm
+
+3
+1-SENSIBILIDADE (%)
+
+5
+
+(Taxa de verdadeiros-pasntros)
+
+so
+
+1-ESPECIFICIDADE (%4)
+tTara dr falsor-portivos)
+
+JA Uma curva ROC A acurácia da glicose sanguines 2h pds-prandial como um leste diagnósbeao para
+jmetittus. (Dados do Public Health Service Diabetes program gude Poblication va. 506. Washimgioa, DC-
+pen Printung Oi q, EMO )
+
+ 
+
+
+--- Página 18 ---
+OUTRAS MEDIDAS ASSOCIADAS
+
+PREVALÊNCIA (P) — Todos os casos da doença existentes antes do
+teste.
+
+P=a+c/a+b+c+d
+
+ACURÁCIA (A) — Proporção de acertos de um teste diagnóstico.
+
+— Tabela71
+
+A= a+d / a+b+c+d
+Teste padrão
+
+Total
+
+Teste em
+estudo
+
+ 
+

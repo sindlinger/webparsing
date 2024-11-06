@@ -1,0 +1,13 @@
+FROM jgontrum/spacyapi:latest
+
+# Instalar certificados e dependências
+RUN apt-get update && \
+    apt-get install -y ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instalar spaCy e o modelo português
+RUN pip install --no-cache-dir spacy && \
+    python -m spacy download pt_core_news_sm
+
+# Manter o comando original do container
+CMD ["supervisord", "-n"]

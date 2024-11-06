@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   tika:
     image: apache/tika:latest-full
@@ -9,6 +7,11 @@ services:
     networks:
       - doc_processing_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9998/tika"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   spacy:
     image: jgontrum/spacyapi:latest
@@ -18,23 +21,13 @@ services:
     networks:
       - doc_processing_network
     restart: unless-stopped
-
-  backend:
-    build:
-      context: .
-    ports:
-      - "8000:8000"
-    environment:
-      PORT: 8000
-    volumes:
-      - ./document_processor/uploads:/app/document_processor/uploads
-      - ./document_processor/results:/app/document_processor/results
-    depends_on:
-      - tika
-      - spacy
-    networks:
-      - doc_processing_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   doc_processing_network:
+    name: doc_processing_network
     driver: bridge

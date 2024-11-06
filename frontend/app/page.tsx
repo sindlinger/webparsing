@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { Upload, Clock, BookOpen } from "lucide-react"
+import { Upload, Clock, BookOpen, X, Download } from "lucide-react"
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -9,11 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 
 const DocumentProcessor = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<any | null>(null)
+  const [results, setResults] = useState<{[key: string]: any}>({})
 
   const services = [
     {
@@ -37,16 +37,20 @@ const DocumentProcessor = () => {
   ]
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
-      setResult(null)
-      setError(null)
-      
-      if (file.type === 'application/pdf') {
-        setSelectedServices(prev => prev.includes('ocrmypdf') ? prev : [...prev, 'ocrmypdf'])
-      }
+    const files = Array.from(event.target.files || [])
+    setSelectedFiles(prev => [...prev, ...files])
+    setResults({})
+    setError(null)
+    
+    const hasPDF = files.some(file => file.type === 'application/pdf')
+    if (hasPDF) {
+      setSelectedServices(prev => prev.includes('ocrmypdf') ? prev : [...prev, 'ocrmypdf'])
     }
+  }
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+    setResults({})
   }
 
   const toggleService = (serviceId: string) => {
@@ -57,34 +61,61 @@ const DocumentProcessor = () => {
     )
   }
 
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000${url}`)
+      if (!response.ok) throw new Error('Erro ao baixar arquivo')
+      
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(downloadUrl)
+    } catch (error) {
+      console.error('Download error:', error)
+      setError('Erro ao baixar arquivo')
+    }
+  }
+
   const handleSubmit = async () => {
-    if (!selectedFile || selectedServices.length === 0) return
+    if (selectedFiles.length === 0 || selectedServices.length === 0) return
   
     setProcessing(true)
-    setResult(null)
+    setResults({})
     setError(null)
   
     try {
-      const formData = new FormData()
-      formData.append("file", selectedFile)
-      formData.append("services", JSON.stringify(selectedServices))
-  
-      const response = await fetch("http://localhost:8000/upload", {
-        method: "POST",
-        body: formData,
-      })
-  
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || "Erro ao processar documento")
+      const processResults: { [key: string]: any } = {}
+      
+      // Process each file sequentially
+      for (const file of selectedFiles) {
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("services", JSON.stringify(selectedServices))
+    
+        const response = await fetch("http://localhost:8000/upload", {
+          method: "POST",
+          body: formData,
+        })
+    
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(`Erro ao processar ${file.name}: ${errorData.detail}`)
+        }
+    
+        const data = await response.json()
+        processResults[file.name] = data
       }
-  
-      const data = await response.json()
-      setResult(data)
+      
+      setResults(processResults)
     } catch (error) {
       console.error('Processing error:', error)
-      setError((error as Error).message || "Erro ao processar documento")
-      setResult(null)
+      setError((error as Error).message || "Erro ao processar documentos")
+      setResults({})
     } finally {
       setProcessing(false)
     }
@@ -95,13 +126,16 @@ const DocumentProcessor = () => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Processador de Documentos</h1>
         <Link href="/docs/spacy" target="_blank">
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button 
+            variant="outline"
+            className="flex items-center gap-2"
+          >
             <BookOpen className="h-4 w-4" />
             Documentação SpaCy
           </Button>
         </Link>
       </div>
-
+  
       <Card>
         <CardContent className="pt-6">
           {error && (
@@ -112,13 +146,13 @@ const DocumentProcessor = () => {
 
           {/* Upload Section */}
           <div className="mb-6">
-            <label className="block mb-2 font-medium">Upload de Arquivo</label>
+            <label className="block mb-2 font-medium">Upload de Arquivos</label>
             <div className="flex items-center justify-center w-full">
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <Upload className="w-8 h-8 mb-2 text-gray-500" />
                   <p className="mb-2 text-sm text-gray-500">
-                    {selectedFile ? selectedFile.name : "Clique ou arraste um arquivo"}
+                    Clique ou arraste arquivos
                   </p>
                 </div>
                 <input
@@ -126,9 +160,30 @@ const DocumentProcessor = () => {
                   className="hidden"
                   onChange={handleFileChange}
                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt"
+                  multiple
                 />
               </label>
             </div>
+            
+            {/* Selected Files List */}
+            {selectedFiles.length > 0 && (
+              <div className="mt-4">
+                <h4 className="font-medium mb-2">Arquivos Selecionados:</h4>
+                <div className="space-y-2">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">{file.name}</span>
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="p-1 hover:bg-gray-200 rounded"
+                      >
+                        <X className="h-4 w-4 text-gray-500" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Services Selection */}
@@ -174,12 +229,12 @@ const DocumentProcessor = () => {
           {/* Submit Button */}
           <button
             className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-              selectedFile && selectedServices.length > 0 && !processing
+              selectedFiles.length > 0 && selectedServices.length > 0 && !processing
                 ? "bg-blue-500 hover:bg-blue-600 text-white"
                 : "bg-gray-200 text-gray-500 cursor-not-allowed"
             }`}
             onClick={handleSubmit}
-            disabled={!selectedFile || selectedServices.length === 0 || processing}
+            disabled={selectedFiles.length === 0 || selectedServices.length === 0 || processing}
           >
             {processing ? (
               <span className="flex items-center justify-center">
@@ -187,83 +242,126 @@ const DocumentProcessor = () => {
                 Processando...
               </span>
             ) : (
-              "Processar Documento"
+              `Processar ${selectedFiles.length} Documento${selectedFiles.length !== 1 ? 's' : ''}`
             )}
           </button>
         </CardContent>
       </Card>
 
       {/* Results Section */}
-      {result && (
+      {Object.keys(results).length > 0 && (
         <Card className="mt-4">
           <CardHeader>
             <CardTitle>Resultados do Processamento</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="summary" className="w-full">
-              <TabsList className="w-full">
-                <TabsTrigger value="summary">Resumo</TabsTrigger>
-                {result.results.ocrmypdf && (
-                  <TabsTrigger value="ocr">Texto Extraído</TabsTrigger>
-                )}
-                {result.results.tika && (
-                  <TabsTrigger value="tika">Tika</TabsTrigger>
-                )}
-                {result.results.spacy && (
-                  <TabsTrigger value="spacy">SpaCy</TabsTrigger>
-                )}
+            <Tabs defaultValue={Object.keys(results)[0]} className="w-full">
+              <TabsList className="w-full flex-wrap">
+                {Object.keys(results).map(filename => (
+                  <TabsTrigger key={filename} value={filename}>
+                    {filename}
+                  </TabsTrigger>
+                ))}
               </TabsList>
 
-              <TabsContent value="summary">
-                <Alert>
-                  <AlertDescription>
-                    <div className="text-sm">
-                      <p className="font-medium mb-2">{result.message}</p>
-                      <p>Serviços utilizados:</p>
-                      <ul className="list-disc ml-5">
-                        {result.services_used.map((serviceId: string) => (
-                          <li key={serviceId}>
-                            {services.find(s => s.id === serviceId)?.name}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              </TabsContent>
+              {Object.entries(results).map(([filename, result]) => (
+                <TabsContent key={filename} value={filename}>
+                  <Tabs defaultValue="summary" className="w-full">
+                    <TabsList className="w-full">
+                      <TabsTrigger value="summary">Resumo</TabsTrigger>
+                      {result.results.ocrmypdf && (
+                        <TabsTrigger value="ocr">Texto Extraído</TabsTrigger>
+                      )}
+                      {result.results.tika && (
+                        <TabsTrigger value="tika">Tika</TabsTrigger>
+                      )}
+                      {result.results.spacy && (
+                        <TabsTrigger value="spacy">SpaCy</TabsTrigger>
+                      )}
+                    </TabsList>
 
-              {result.results.ocrmypdf && (
-                <TabsContent value="ocr">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Texto Extraído do PDF:</h4>
-                    <div className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded border max-h-96 overflow-y-auto">
-                      {result.results.ocrmypdf.text_content || 'Nenhum texto extraído'}
-                    </div>
-                  </div>
-                </TabsContent>
-              )}
+                    <TabsContent value="summary">
+                      <Alert>
+                        <AlertDescription>
+                          <div className="text-sm">
+                            <p className="font-medium mb-2">{result.message}</p>
+                            <p>Serviços utilizados:</p>
+                            <ul className="list-disc ml-5">
+                              {result.services_used.map((serviceId: string) => (
+                                <li key={serviceId}>
+                                  {services.find(s => s.id === serviceId)?.name}
+                                </li>
+                              ))}
+                            </ul>
 
-              {result.results.tika && (
-                <TabsContent value="tika">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Resultado Tika:</h4>
-                    <div className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded border max-h-96 overflow-y-auto">
-                      {result.results.tika.text || JSON.stringify(result.results.tika, null, 2)}
-                    </div>
-                  </div>
-                </TabsContent>
-              )}
+                            {/* Botão de download do arquivo original */}
+                            {result.file_info && (
+                              <Button
+                                variant="outline"
+                                className="mt-4 flex items-center gap-2"
+                                onClick={() => handleDownload(
+                                  result.file_info.download_url,
+                                  result.file_info.original_name
+                                )}
+                              >
+                                <Download className="h-4 w-4" />
+                                Baixar Arquivo Original
+                              </Button>
+                            )}
+                          </div>
+                        </AlertDescription>
+                      </Alert>
+                    </TabsContent>
 
-              {result.results.spacy && (
-                <TabsContent value="spacy">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Análise SpaCy:</h4>
-                    <div className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded border max-h-96 overflow-y-auto">
-                      {JSON.stringify(result.results.spacy, null, 2)}
-                    </div>
-                  </div>
+                    {result.results.ocrmypdf && (
+                      <TabsContent value="ocr">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-medium">Texto Extraído do PDF:</h4>
+                            {/* Botão de download do texto extraído */}
+                            <Button
+                              variant="outline"
+                              className="flex items-center gap-2"
+                              onClick={() => handleDownload(
+                                result.results.ocrmypdf.download_url,
+                                `${result.file_info.original_name}_texto.txt`
+                              )}
+                            >
+                              <Download className="h-4 w-4" />
+                              Baixar Texto
+                            </Button>
+                          </div>
+                          <div className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded border max-h-96 overflow-y-auto">
+                            {result.results.ocrmypdf.text_content || 'Nenhum texto extraído'}
+                          </div>
+                        </div>
+                      </TabsContent>
+                    )}
+
+                    {result.results.tika && (
+                      <TabsContent value="tika">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <h4 className="font-medium mb-2">Resultado Tika:</h4>
+                          <div className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded border max-h-96 overflow-y-auto">
+                            {result.results.tika.text || JSON.stringify(result.results.tika, null, 2)}
+                          </div>
+                        </div>
+                      </TabsContent>
+                    )}
+
+                    {result.results.spacy && (
+                      <TabsContent value="spacy">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <h4 className="font-medium mb-2">Análise SpaCy:</h4>
+                          <div className="whitespace-pre-wrap font-mono text-sm bg-white p-4 rounded border max-h-96 overflow-y-auto">
+                            {JSON.stringify(result.results.spacy, null, 2)}
+                          </div>
+                        </div>
+                      </TabsContent>
+                    )}
+                  </Tabs>
                 </TabsContent>
-              )}
+              ))}
             </Tabs>
           </CardContent>
         </Card>

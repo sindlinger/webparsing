@@ -28,8 +28,7 @@ npx shadcn-ui@latest add alert
 npx shadcn-ui@latest add tabs
 
 echo -e "${GREEN}Configuração concluída!${NC}"
-echo "Componentes instalados:"
-echo "- Button"
+echo "Componentes instalados:"echo "- Button"
 echo "- Card"
 echo "- Alert"
 echo "- Tabs"
